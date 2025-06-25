@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { donuts } from "@/data";
+import { getQuizData, getQuizTitle, getQuizEmoji, type QuizItem, type QuizType } from "@/data";
 import { Button } from "@/components";
 import Image from "next/image";
 
 type Difficulty = "beginner" | "intermediate" | "advanced";
 
-type GameQuestion = typeof donuts[0] & {
+type GameQuestion = QuizItem & {
   choices?: string[];
   hideIndices?: number[];
 };
@@ -23,12 +23,14 @@ export default function GamePage() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
+  const [quizType, setQuizType] = useState<QuizType | null>(null);
+  const [typeSelected, setTypeSelected] = useState(false);
 
   const TOTAL_QUESTIONS = 5;
 
-  const generateChoices = (correctAnswer: string, allDonuts: typeof donuts) => {
-    const otherDonuts = allDonuts.filter(d => d.name !== correctAnswer);
-    const shuffledOthers = [...otherDonuts].sort(() => Math.random() - 0.5);
+  const generateChoices = (correctAnswer: string, allItems: QuizItem[]) => {
+    const otherItems = allItems.filter(d => d.name !== correctAnswer);
+    const shuffledOthers = [...otherItems].sort(() => Math.random() - 0.5);
     const wrongChoices = shuffledOthers.slice(0, 3).map(d => d.name);
     
     const choices = [correctAnswer, ...wrongChoices];
@@ -51,16 +53,19 @@ export default function GamePage() {
   };
 
   const generateQuestions = (selectedDifficulty: Difficulty) => {
-    const shuffled = [...donuts].sort(() => Math.random() - 0.5);
-    const selectedDonuts = shuffled.slice(0, TOTAL_QUESTIONS);
+    if (!quizType) return;
     
-    const questions: GameQuestion[] = selectedDonuts.map(donut => {
-      const question: GameQuestion = { ...donut };
+    const quizData = getQuizData(quizType);
+    const shuffled = [...quizData].sort(() => Math.random() - 0.5);
+    const selectedItems = shuffled.slice(0, TOTAL_QUESTIONS);
+    
+    const questions: GameQuestion[] = selectedItems.map(item => {
+      const question: GameQuestion = { ...item };
       
       if (selectedDifficulty === "beginner") {
-        question.choices = generateChoices(donut.name, donuts);
+        question.choices = generateChoices(item.name, quizData);
       } else if (selectedDifficulty === "intermediate") {
-        question.hideIndices = generateHidePattern(donut.name);
+        question.hideIndices = generateHidePattern(item.name);
       }
       
       return question;
@@ -78,19 +83,19 @@ export default function GamePage() {
   };
 
   const handleSubmit = () => {
-    const currentDonut = gameQuestions[currentQuestion];
-    if (!currentDonut) return;
+    const currentItem = gameQuestions[currentQuestion];
+    if (!currentItem) return;
 
     let correct = false;
     
     if (difficulty === "beginner") {
-      correct = selectedChoice === currentDonut.name;
+      correct = selectedChoice === currentItem.name;
     } else {
       const userInput = userAnswer.trim().toLowerCase().replace(/\s+/g, '');
-      const donutName = currentDonut.name.toLowerCase().replace(/\s+/g, '');
-      const donutReading = currentDonut.reading.toLowerCase().replace(/\s+/g, '');
+      const itemName = currentItem.name.toLowerCase().replace(/\s+/g, '');
+      const itemReading = currentItem.reading.toLowerCase().replace(/\s+/g, '');
       
-      correct = userInput === donutName || userInput === donutReading;
+      correct = userInput === itemName || userInput === itemReading;
     }
 
     setIsCorrect(correct);
@@ -123,6 +128,8 @@ export default function GamePage() {
     setShowAnswer(false);
     setIsCorrect(false);
     setDifficulty(null);
+    setTypeSelected(false);
+    setQuizType(null);
   };
 
   const renderHiddenText = (text: string, hideIndices: number[]) => {
@@ -141,12 +148,80 @@ export default function GamePage() {
     return userAnswer.trim() !== "";
   };
 
+  if (!typeSelected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-orange-50 p-4">
+        <div className="mx-auto max-w-4xl text-center">
+          <h1 className="mb-6 text-4xl font-bold text-orange-800">
+            🎯 クイズゲーム
+          </h1>
+          <p className="mb-8 text-lg text-orange-700">
+            どちらのクイズに挑戦しますか？
+          </p>
+          
+          <div className="grid gap-8 md:grid-cols-2">
+            {/* ドーナツクイズ */}
+            <div className="rounded-lg bg-white p-8 shadow-lg transition-transform hover:scale-105">
+              <div className="mb-4 text-6xl">🍩</div>
+              <h3 className="mb-4 text-2xl font-bold text-orange-600">ドーナツクイズ</h3>
+              <p className="mb-6 text-gray-600">
+                ミスタードーナツの商品名を当てるクイズです。<br />
+                美味しそうなドーナツの写真を見て名前を答えましょう！
+              </p>
+              <Button
+                onClick={() => {
+                  setQuizType("donut");
+                  setTypeSelected(true);
+                }}
+                className="w-full bg-orange-500 py-3 text-white hover:bg-orange-600"
+              >
+                ドーナツクイズを選択
+              </Button>
+            </div>
+
+            {/* アイスクリームクイズ */}
+            <div className="rounded-lg bg-white p-8 shadow-lg transition-transform hover:scale-105">
+              <div className="mb-4 text-6xl">🍦</div>
+              <h3 className="mb-4 text-2xl font-bold text-blue-600">アイスクリームクイズ</h3>
+              <p className="mb-6 text-gray-600">
+                サーティワンアイスクリームのフレーバー名を当てるクイズです。<br />
+                カラフルなアイスクリームの写真を見て名前を答えましょう！
+              </p>
+              <Button
+                onClick={() => {
+                  setQuizType("ice");
+                  setTypeSelected(true);
+                }}
+                className="w-full bg-blue-500 py-3 text-white hover:bg-blue-600"
+              >
+                アイスクリームクイズを選択
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-xl font-semibold text-orange-800">
+              ゲームについて
+            </h2>
+            <ul className="space-y-2 text-left text-orange-700">
+              <li>• 両方のクイズとも3つの難易度が選択できます</li>
+              <li>• 初級：4択問題</li>
+              <li>• 中級：一部文字がヒント表示</li>
+              <li>• 上級：完全記述問題</li>
+              <li>• 各クイズ{TOTAL_QUESTIONS}問出題されます</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!gameStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-pink-50 to-orange-50 p-4">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="mb-6 text-4xl font-bold text-orange-800">
-            🍩 ドーナツ名前当てクイズ
+            {getQuizEmoji(quizType!)} {getQuizTitle(quizType!)}名前当てクイズ
           </h1>
           <p className="mb-8 text-lg text-orange-700">
             難易度を選択してゲームを開始しましょう！
@@ -220,11 +295,21 @@ export default function GamePage() {
             </h2>
             <ul className="space-y-2 text-left text-orange-700">
               <li>• 全{TOTAL_QUESTIONS}問出題されます</li>
-              <li>• 各問題でドーナツの画像が表示されます</li>
+              <li>• 各問題で{getQuizTitle(quizType!)}の画像が表示されます</li>
               <li>• 難易度により回答方法が変わります</li>
               <li>• ひらがなの読み方でも正解になります（中級・上級）</li>
               <li>• 最後に正解数が表示されます</li>
             </ul>
+          </div>
+
+          <div className="mt-4 text-center">
+            <Button
+              onClick={() => setTypeSelected(false)}
+              variant="outline"
+              className="border-orange-500 px-6 py-2 text-orange-500 hover:bg-orange-50"
+            >
+              ← クイズ選択に戻る
+            </Button>
           </div>
         </div>
       </div>
@@ -266,7 +351,7 @@ export default function GamePage() {
                 variant="outline"
                 className="border-orange-500 px-6 py-2 text-orange-500 hover:bg-orange-50"
               >
-                難易度選択に戻る
+                クイズ選択に戻る
               </Button>
             </div>
           </div>
@@ -275,9 +360,9 @@ export default function GamePage() {
     );
   }
 
-  const currentDonut = gameQuestions[currentQuestion];
+  const currentItem = gameQuestions[currentQuestion];
 
-  if (!currentDonut) {
+  if (!currentItem) {
     return <div>Loading...</div>;
   }
 
@@ -286,7 +371,7 @@ export default function GamePage() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-orange-800">ドーナツクイズ</h1>
+            <h1 className="text-2xl font-bold text-orange-800">{getQuizTitle(quizType!)}クイズ</h1>
             <div className="text-sm text-orange-600">
               {difficulty === "beginner" && "🟢 初級モード"}
               {difficulty === "intermediate" && "🟡 中級モード"}
@@ -302,15 +387,15 @@ export default function GamePage() {
           <div className="mb-6 text-center">
             <h2 className="mb-4 text-xl font-semibold text-orange-800">
               {difficulty === "beginner" 
-                ? "このドーナツの名前は？（4択）"
+                ? `この${getQuizTitle(quizType!)}の名前は？（4択）`
                 : difficulty === "intermediate"
-                ? "このドーナツの名前は？（穴あきヒント）"
-                : "このドーナツの名前は？"}
+                ? `この${getQuizTitle(quizType!)}の名前は？（穴あきヒント）`
+                : `この${getQuizTitle(quizType!)}の名前は？`}
             </h2>
             <div className="relative mx-auto mb-6 h-64 w-64">
               <Image
-                src={currentDonut.imageUrl}
-                alt="ドーナツ"
+                src={currentItem.imageUrl}
+                alt={getQuizTitle(quizType!)}
                 fill
                 className="rounded-lg object-cover"
                 priority
@@ -318,11 +403,11 @@ export default function GamePage() {
             </div>
             
             {/* 中級用のヒント表示 */}
-            {difficulty === "intermediate" && currentDonut.hideIndices && (
+            {difficulty === "intermediate" && currentItem.hideIndices && (
               <div className="mb-4 rounded-lg bg-yellow-50 p-4">
                 <p className="mb-2 text-sm text-yellow-700">ヒント:</p>
                 <div className="text-2xl font-mono font-bold text-yellow-800">
-                  {renderHiddenText(currentDonut.name, currentDonut.hideIndices)}
+                  {renderHiddenText(currentItem.name, currentItem.hideIndices)}
                 </div>
               </div>
             )}
@@ -331,9 +416,9 @@ export default function GamePage() {
           {!showAnswer ? (
             <div className="space-y-4">
               {/* 初級：選択肢 */}
-              {difficulty === "beginner" && currentDonut.choices && (
+              {difficulty === "beginner" && currentItem.choices && (
                 <div className="space-y-3">
-                  {currentDonut.choices.map((choice, index) => (
+                  {currentItem.choices.map((choice: string, index: number) => (
                     <label
                       key={index}
                       className={`block cursor-pointer rounded-lg border-2 p-3 text-left transition-colors ${
@@ -365,7 +450,7 @@ export default function GamePage() {
                   placeholder={
                     difficulty === "intermediate"
                       ? "ヒントを参考に名前を入力してください"
-                      : "ドーナツの名前を入力してください（ひらがなでもOK！）"
+                      : `${getQuizTitle(quizType!)}の名前を入力してください（ひらがなでもOK！）`
                   }
                   className="w-full rounded-lg border border-orange-300 p-3 focus:ring-2 focus:ring-orange-500 focus:outline-none"
                   onKeyPress={(e) =>
@@ -392,7 +477,7 @@ export default function GamePage() {
                 </div>
                 <div className="text-lg">
                   正解:{" "}
-                  <span className="font-semibold">{currentDonut.name}</span>
+                  <span className="font-semibold">{currentItem.name}</span>
                 </div>
                 {!isCorrect && (
                   <div className="mt-2 text-sm">
