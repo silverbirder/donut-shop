@@ -19,7 +19,8 @@ export default async function Home() {
               商品クイズに挑戦！
             </h2>
             <p className="mb-6 text-orange-700">
-              ドーナツ🍩、アイスクリーム🍦、スターバックス商品☕の画像を見て、正しい商品名を当てるクイズゲームです。
+              ドーナツ🍩、アイスクリーム🍦、スターバックス商品☕の画像を見て、正しい商品名を当てるクイズゲームです。<br />
+              <span className="text-sm">まず学習モードで商品を覚えてから、クイズに挑戦することをおすすめします！</span>
             </p>
             <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="rounded-lg bg-orange-50 p-4">
@@ -46,11 +47,18 @@ export default async function Home() {
                 <div className="text-sm text-green-600">コーヒーやドリンク</div>
               </div>
             </div>
-            <Link href="/game">
-              <Button className="transform bg-gradient-to-r from-orange-500 to-pink-500 px-8 py-3 text-lg text-white transition-all hover:scale-105 hover:from-orange-600 hover:to-pink-600">
-                🎮 クイズに挑戦する！
-              </Button>
-            </Link>
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+              <Link href="/study">
+                <Button className="transform bg-gradient-to-r from-blue-500 to-purple-500 px-8 py-3 text-lg text-white transition-all hover:scale-105 hover:from-blue-600 hover:to-purple-600">
+                  📚 まず学習する
+                </Button>
+              </Link>
+              <Link href="/game">
+                <Button className="transform bg-gradient-to-r from-orange-500 to-pink-500 px-8 py-3 text-lg text-white transition-all hover:scale-105 hover:from-orange-600 hover:to-pink-600">
+                  🎮 クイズに挑戦する！
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
