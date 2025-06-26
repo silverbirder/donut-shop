@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { iconSizes } from "./icon";
+import { title, description } from "./meta.data";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ドーナツショップ",
-    short_name: "ドーナツ",
-    description: "ドーナツショップ",
+    name: title,
+    short_name: title,
+    description: description,
     start_url: "/",
     display: "standalone",
     background_color: "#fff",

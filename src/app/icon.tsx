@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { emoji } from "./meta.data";
 
 export const iconSizes = [48, 72, 96, 144, 192, 512];
 
@@ -25,7 +26,7 @@ export default function Icon({ id }: { id: number }) {
           fontSize: id,
         }}
       >
-        🍩
+        {emoji}
       </div>
     ),
     {

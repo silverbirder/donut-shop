@@ -6,13 +6,14 @@ import { Noto_Sans_JP } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Footer } from "@/components";
+import { title, description } from "./meta.data";
 
-const baseUrl = process.env.BASE_URL ?? "https://donut-shop-quiz.vercel.app";
+const baseUrl = process.env.BASE_URL ?? "https://product-quiz-game.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: "ドーナツショップ",
-  description: "ドーナツショップ",
+  title,
+  description,
   robots: {
     index: true,
   },

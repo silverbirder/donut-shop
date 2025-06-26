@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { emoji } from "./meta.data";
 
 export const size = {
   width: 32,
@@ -17,7 +18,7 @@ export default function Icon() {
           height: "100%",
         }}
       >
-        🍩
+        {emoji}
       </div>
     ),
     {
