@@ -159,7 +159,7 @@ export default function GamePage() {
             どちらのクイズに挑戦しますか？
           </p>
           
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-3">
             {/* ドーナツクイズ */}
             <div className="rounded-lg bg-white p-8 shadow-lg transition-transform hover:scale-105">
               <div className="mb-4 text-6xl">🍩</div>
@@ -197,6 +197,25 @@ export default function GamePage() {
                 アイスクリームクイズを選択
               </Button>
             </div>
+
+            {/* スターバックスクイズ */}
+            <div className="rounded-lg bg-white p-8 shadow-lg transition-transform hover:scale-105">
+              <div className="mb-4 text-6xl">☕</div>
+              <h3 className="mb-4 text-2xl font-bold text-green-600">スターバックスクイズ</h3>
+              <p className="mb-6 text-gray-600">
+                スターバックスのドリンク名を当てるクイズです。<br />
+                美味しそうなコーヒーの写真を見て名前を答えましょう！
+              </p>
+              <Button
+                onClick={() => {
+                  setQuizType("starbucks");
+                  setTypeSelected(true);
+                }}
+                className="w-full bg-green-500 py-3 text-white hover:bg-green-600"
+              >
+                スターバックスクイズを選択
+              </Button>
+            </div>
           </div>
 
           <div className="mt-8 rounded-lg bg-white p-6 shadow-lg">
@@ -204,7 +223,7 @@ export default function GamePage() {
               ゲームについて
             </h2>
             <ul className="space-y-2 text-left text-orange-700">
-              <li>• 両方のクイズとも3つの難易度が選択できます</li>
+              <li>• 3つのクイズから選択できます</li>
               <li>• 初級：4択問題</li>
               <li>• 中級：一部文字がヒント表示</li>
               <li>• 上級：完全記述問題</li>

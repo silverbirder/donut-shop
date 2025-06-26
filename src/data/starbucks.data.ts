@@ -339,4 +339,4 @@ const Coffees: QuizItem[] = [
   },
 ];
 
-export { Coffees };
+export { Coffees as starbucks };
